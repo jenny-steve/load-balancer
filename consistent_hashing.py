@@ -2,14 +2,17 @@ import math
 
 class ConsistentHashMap:
     def __init__(self, num_containers, num_slots, num_virtual_servers):
-        self.num_containers = num_containers
-        self.num_slots = num_slots
-        self.num_virtual_servers = num_virtual_servers
-        self.hash_map = [None] * num_slots
+        #Initialize parameters
+
+        self.num_containers = num_containers # Initialize No of server containers
+        self.num_slots = num_slots # Initialize No of slots in hash map
+        self.num_virtual_servers = num_virtual_servers # Initialize No of virtual servers for each container
+        self.hash_map = [None] * num_slots 
         self.virtual_servers = {}
         self._initialize_virtual_servers()
 
     def _initialize_virtual_servers(self):
+        # Initialize virtual servers and assign them to slots in the hash map.
         for i in range(self.num_containers):
             self.virtual_servers[i] = []
             for j in range(self.num_virtual_servers):
@@ -20,6 +23,12 @@ class ConsistentHashMap:
                 self.virtual_servers[i].append(slot)
 
     def _hash_virtual_server(self, i, j):
+        """
+        Hash function for virtual servers.
+        :param i: Server container index
+        :param j: Virtual server index
+        :return: Slot index
+        """
         return (i + j**2 + 2*j + 25) % self.num_slots
 
     def _hash_request(self, request_id):
