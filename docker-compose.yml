@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  server1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    networks:
+      - my-network
+
+  server2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5000"
+    networks:
+      - my-network
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx.Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - server1
+      - server2
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
