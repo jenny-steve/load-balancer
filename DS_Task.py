@@ -5,33 +5,26 @@ import math
 app = Flask(__name__)
 
 # Parameters for consistent hashing
-N = 3  # Initial number of server containers
+N = 3  # Number of server containers
 num_slots = 512  # Total number of slots in the hash map
 K = int(math.log2(num_slots))  # Number of virtual servers per container
 
+# Docker container names
+server_containers = ["server1", "server2", "nginx"]
+
 # Initialize the consistent hash map
 consistent_hash_map = ConsistentHashMap(N, num_slots, K)
-server_containers = ["Server 1", "Server 2", "Server 3"]  # Initial server container names
 
 @app.route('/home', methods=['GET'])
 def home():
-
-    # Home endpoint to check the server status.
-
     return "Welcome to the Home Page!"
 
 @app.route('/heartbeat', methods=['GET'])
 def heartbeat():
-
-    # Heartbeat endpoint to check if the server is alive.
-
     return jsonify({"status": "alive"})
 
 @app.route('/rep', methods=['GET'])
 def get_replicas():
-
-    # Endpoint to get the status of server replicas.
-
     return jsonify({
         "message": {
             "N": N,
@@ -42,9 +35,6 @@ def get_replicas():
 
 @app.route('/add', methods=['POST'])
 def add_replicas():
-
-    # Endpoint to add new server instances to the load balancer.
-
     data = request.get_json()
     n = data.get('n')
     hostnames = data.get('hostnames')
@@ -72,9 +62,6 @@ def add_replicas():
 
 @app.route('/rm', methods=['DELETE'])
 def remove_replicas():
-
-    # Endpoint to remove server instances from the load balancer.
-
     data = request.get_json()
     n = data.get('n')
     hostnames = data.get('hostnames')
@@ -103,13 +90,11 @@ def remove_replicas():
 
 @app.route('/<path:path>', methods=['GET'])
 def route_request(path):
-
-    # Endpoint to route requests to the appropriate server container.
-
     if path == "home":
         request_id = request.args.get('request_id', type=int)
         server_id = consistent_hash_map.assign_request(request_id)
-        return f"Request {request_id} routed to Server {server_id}"
+        # Return the Docker container name
+        return f"Request {request_id} routed to {server_containers[server_id]}"
     else:
         return jsonify({
             "message": "<Error> '/other' endpoint does not exist in server replicas",
